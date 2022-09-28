@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { faFacebookSquare } from "@fortawesome/free-brands-svg-icons";
 import { faMugHot } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import AuthLayout from "../components/auth/Container";
+import AuthLayout from "../components/auth/AuthLayout";
 import Button from "../components/auth/Button";
 import Seperator from "../components/auth/Seperator";
 import Input from "../components/auth/Input";
@@ -26,8 +26,8 @@ const FacebookLogin = styled.div`
   }
 `;
 const Notification = styled.div`
-   color: #2ecc71;
- `;
+  color: #2ecc71;
+`;
 
 const LOGIN_MUTATION = gql`
   mutation login($username: String!, $password: String!) {
@@ -107,27 +107,30 @@ function Login() {
             {...register("username", {
               required: "Username is Required",
               minLength: {
-                value: 5,
-                message: "Username should be longer than 5 chars.",
+                value: 3,
+                message: "Username should be longer than 3 chars.",
               },
-              //validate: (currentValue) => currentValue.includes("tomato"),
             })}
-
+            onFocus={() => clearLoginError()}
             name="username"
             type="text"
             placeholder="Username"
             hasError={Boolean(formState.errors?.username?.message)}
           />
           <FormError message={formState.errors?.username?.message} />
-          <Input
-            {...register("password", { required: "Password is Required" })}
 
+          <Input
+            {...register("password", {
+              required: "Password is Required",
+            })}
+            onFocus={() => clearLoginError()}
             name="password"
             type="password"
             placeholder="Password"
             hasError={Boolean(formState.errors?.username?.message)}
           />
           <FormError message={formState.errors?.password?.message} />
+
           <Button
             type="submit"
             value={loading ? "Loading..." : "Log in"}
