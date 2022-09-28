@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 const SSeperator = styled.div`
-  margin: 20px 0px 30px 0px;
+  margin: 20px 0px 20px 0px;
   text-transform: uppercase;
   display: flex;
   justify-content: center;
@@ -13,7 +13,7 @@ const SSeperator = styled.div`
     background-color: ${(props) => props.theme.borderColor};
   }
   span {
-    margin: 0px 10px;
+    margin: 10px 10px;
     font-weight: 600;
     font-size: 12px;
     color: #8e8e8e;

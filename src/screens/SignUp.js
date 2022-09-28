@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { faFacebookSquare } from "@fortawesome/free-brands-svg-icons";
 import { faMugHot } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import AuthLayout from "../components/auth/Container";
+import AuthLayout from "../components/auth/AuthLayout";
 import Button from "../components/auth/Button";
 import Seperator from "../components/auth/Seperator";
 import Input from "../components/auth/Input";
@@ -16,7 +16,7 @@ import PageTitle from "../components/PageTitle";
 import { useForm } from "react-hook-form";
 import { gql, useMutation } from "@apollo/client";
 import FormError from "../components/auth/FormError";
-import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const HeaderContainer = styled.div`
   display: flex;
@@ -46,10 +46,12 @@ const CREATE_ACCOUNT_MUTATION = gql`
     $password: String!
   ) {
     createAccount(
-      name: $firstName
+      name: $name
       username: $username
       email: $email
       password: $password
+      location: $location
+      githubUsername: $githubUsername
     ) {
       ok
       error
@@ -58,6 +60,30 @@ const CREATE_ACCOUNT_MUTATION = gql`
 `;
 
 function SignUp() {
+  let navigate = useNavigate();
+
+  const onCompleted = (data) => {
+    const { username, password } = getValues();
+
+    const {
+      createAccount: {ok, error },
+    } = data;
+    if (!ok) {
+      return;
+    }
+    navigate(routes.home, {
+      state:{
+        message: "Account created. Please log in.",
+        username,
+        password
+      }
+    });
+  };
+
+  const [createAccount, { loading }] = useMutation(CREATE_ACCOUNT_MUTATION, {
+    onCompleted,
+  });
+
   const {
     register,
     watch,
@@ -69,20 +95,7 @@ function SignUp() {
   } = useForm({
     mode: "onChange",
   });
-  console.log(formState.errors);
-  const onCompleted = (data) => {
-    const {
-      createAccount: { ok, error },
-    } = data;
-    if (!ok) {
-      return;
-    }
-    Navigate(-1);
-  };
 
-  const [createAccount, { loading }] = useMutation(CREATE_ACCOUNT_MUTATION, {
-    onCompleted,
-  });
   const onSubmitValid = (data) => {
     //console.log(data, "val");
     if (loading) {
@@ -94,16 +107,10 @@ function SignUp() {
       },
     });
   };
-  const clearSignupError = () => {
-    clearErrors("result");
-  };
-
-  console.log(formState.errors);
 
   return (
     <AuthLayout>
       <PageTitle title="Sign-up" />
-
       <FormBox>
         <HeaderContainer>
           <FontAwesomeIcon icon={faMugHot} size="3x" />
@@ -114,7 +121,7 @@ function SignUp() {
             Sign up to see photos and videos from your friends.{" "}
           </FatLink>
         </SubtitleTop>
-        <Button icon={faFacebookSquare} value="Login with Facebook" />
+        <Button icon={faFacebookSquare} defaultValue="Login with Facebook" readOnly/>
         <Seperator />
         <form onSubmit={handleSubmit(onSubmitValid)}>
           <Input
@@ -130,7 +137,6 @@ function SignUp() {
             hasError={Boolean(formState.errors?.username?.message)}
           />
           <FormError message={formState.errors?.username?.message} />
-
           <Input
             {...register("email", { required: "Email is Required" })}
             type="text"
@@ -138,7 +144,6 @@ function SignUp() {
             hasError={Boolean(formState.errors?.email?.message)}
           />
           <FormError message={formState.errors?.email?.message} />
-
           <Input
             {...register("name", { required: "Name is Required" })}
             type="text"
