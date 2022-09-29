@@ -1,4 +1,5 @@
-import { ApolloClient, InMemoryCache, makeVar } from "@apollo/client";
+import { ApolloClient, InMemoryCache, makeVar, createHttpLink } from "@apollo/client";
+import { setContext } from "@apollo/client/link/context";
 
 const TOKEN = "token";
 const DARK_MODE = "DARK_MODE";
@@ -26,8 +27,25 @@ export const disableDarkMode = () => {
   localStorage.removeItem(DARK_MODE);
   darkModeVar(false);
 };
+
+// Authenticate using HTTP header
+const httpLink = createHttpLink({
+  uri:"https://emzei-backend.herokuapp.com/graphql"
+});
+
+const authLink = setContext((_, { headers }) => {
+  return {
+    headers: {
+      ...headers,
+      token: localStorage.getItem(TOKEN),
+    },
+  };
+});
+
+
 export const client = new ApolloClient({
   uri: "https://emzei-backend.herokuapp.com/graphql",
   cache: new InMemoryCache(),
+  link: authLink.concat(httpLink),
   connectToDevTools: true,
 });

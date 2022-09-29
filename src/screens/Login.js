@@ -146,7 +146,7 @@ function Login() {
       </FormBox>
       <BottomBox
         cta="Don't have an account?"
-        link={routes.signUp}
+        link={routes.home+routes.signUp}
         linkText="Sign up"
       />
     </AuthLayout>
