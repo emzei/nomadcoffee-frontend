@@ -30,7 +30,10 @@ export const disableDarkMode = () => {
 
 // Authenticate using HTTP header
 const httpLink = createHttpLink({
-  uri:"https://emzei-backend.herokuapp.com/graphql"
+  uri:
+    process.env.NODE_ENV === "production"
+      ? "https://emzei-backend.herokuapp.com/graphql"
+      : "http://localhost:1234/graphql",
 });
 
 const authLink = setContext((_, { headers }) => {
